@@ -1,0 +1,16 @@
+{
+  "name": "smtm_bot",
+  "version": "1.0.0",
+  "description": "SMTM telegram bot",
+  "main": "bot-index.js",
+  "scripts": {
+    "start": "nodemon bot.js"
+  },
+  "author": "HikiKoi",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.4",
+    "mongoose": "^8.1.3",
+    "telegraf": "^4.15.3"
+  }
+}
