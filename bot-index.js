@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { Telegraf } = require('telegraf');
-const keyboard = require('./keyboards/keyboard');
 const { config } = require('dotenv');
 const mongoose = require('mongoose');
 
@@ -14,17 +13,18 @@ const token = process.env.TOKEN;
 
 const bot = new Telegraf(token);
 
-// Import the function that generates categories menu
 const { generateCategoriesMenu } = require('./helper/category');
+const { generateSubcategoriesMenu } = require('./helper/subcategory');
+const { generateProductsMenu, findProduct } = require('./helper/product');
+let categoryID = 0;
+let subcategoryID = 0;
+let productID = 0;
 
 // START
+
 bot.start(async (ctx) => {
   try {
-    // Generate categories menu and wait for it to be populated
     const categoriesMenu = await generateCategoriesMenu();
-
-    // Log the populated menu for debugging
-    console.log(categoriesMenu);
 
     const message = `
     Welcome to our e-store's Telegram bot! 
@@ -32,12 +32,11 @@ bot.start(async (ctx) => {
     Explore our wide range of products conveniently right from your chat window. From electronics to fashion, we've got you covered. Enjoy seamless shopping with easy browsing and instant access to great deals. Shop smart, shop with us!
     `;
 
-    // Reply with photo and categories menu
     ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
       caption: message,
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: categoriesMenu // Use the populated categories menu
+        inline_keyboard: categoriesMenu
       }
     });
   } catch (error) {
@@ -45,5 +44,69 @@ bot.start(async (ctx) => {
   }
 });
 
-// Start the bot
-bot.launch().then(() => console.log("Bot started")).catch(err => console.error(err));
+// CATEGORIES 
+bot.action(/^category_(\d+)$/, async (ctx) => {
+  const match = ctx.match[1];
+  categoryID = parseInt(match);
+
+  try {
+    const subcategoriesMenu = await generateSubcategoriesMenu(categoryID);
+    const message = `Subcategories for Category ${categoryID}`;
+
+    ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+      caption: message,
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: subcategoriesMenu
+      }
+    });
+  } catch (error) {
+    console.error("Error handling category action:", error);
+  }
+});
+
+// PRODUCTS
+
+bot.action(/^subcategory_(\d+)$/, async (ctx) => {
+  const match = ctx.match[1];
+  subcategoryID = parseInt(match);
+
+  try {
+    const productsMenu = await generateProductsMenu(subcategoryID);
+    const message = `Products`;
+
+    console.log(productsMenu);
+
+    ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+      caption: message,
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: productsMenu
+      }
+    });
+  } catch (error) {
+    console.error("Error handling category action:", error);
+  }
+});
+
+// PRODUCT
+
+bot.action(/^product_(\d+)_(\d+)$/, async (ctx) => {
+  let subcategoryId = parseInt(ctx.match[1])
+  productID = parseInt(ctx.match[2]);
+
+  try {
+    const product = await findProduct(productID, subcategoryId);
+
+    if (product) {
+      ctx.reply(`Name: ${product.name}\n\nDescription: ${product.desc}\n\nLink: ${product.link}`);
+    } else {
+      ctx.reply("Product not found.");
+    }
+  } catch (error) {
+    console.error("Error handling product action:", error);
+  }
+});
+
+
+bot.launch(console.log("Bot started")).catch(err => console.error(err));
