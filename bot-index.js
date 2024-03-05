@@ -22,17 +22,29 @@ let productID = 0;
 
 // START
 
-bot.start(async (ctx) => {
+bot.start((ctx) => {
+  const message = `
+SMTM - ваш надежный помощник в поиске товаров и услуг. Наш бот предоставляет быстрый доступ к информации о различных продуктах и сервисах, помогая вам принять правильное решение.
+
+SMTM tovar va xizmatlarni qidirishda ishonchli yordamchingizdir. Bizning botimiz sizga to'g'ri qaror qabul qilishda yordam beradigan turli mahsulot va xizmatlar haqidagi ma'lumotlarga tezkor kirish imkonini beradi.
+  `;
+
+  ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+    caption: message,
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [[{ text: "Категории | Kategoriyalar", callback_data: "categories" }]]
+    }
+  });
+})
+
+bot.action("categories", async (ctx) => {
   try {
     const categoriesMenu = await generateCategoriesMenu();
 
-    const message = `
-    Welcome to our e-store's Telegram bot! 
-    
-    Explore our wide range of products conveniently right from your chat window. From electronics to fashion, we've got you covered. Enjoy seamless shopping with easy browsing and instant access to great deals. Shop smart, shop with us!
-    `;
+    const message = `Категории || Kategoriyalar`;
 
-    ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+    ctx.replyWithPhoto({ source: 'images/category.png' }, {
       caption: message,
       parse_mode: 'Markdown',
       reply_markup: {
@@ -51,9 +63,9 @@ bot.action(/^category_(\d+)$/, async (ctx) => {
 
   try {
     const subcategoriesMenu = await generateSubcategoriesMenu(categoryID);
-    const message = `Subcategories for Category ${categoryID}`;
+    const message = `Подкатегории || Podkategoriyalar`;
 
-    ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+    ctx.replyWithPhoto({ source: 'images/subcategory.png' }, {
       caption: message,
       parse_mode: 'Markdown',
       reply_markup: {
@@ -73,11 +85,9 @@ bot.action(/^subcategory_(\d+)$/, async (ctx) => {
 
   try {
     const productsMenu = await generateProductsMenu(subcategoryID);
-    const message = `Products`;
+    const message = `Товары || Mahsulotlar`;
 
-    console.log(productsMenu);
-
-    ctx.replyWithPhoto({ source: 'images/cover_bot.png' }, {
+    ctx.replyWithPhoto({ source: 'images/products.png' }, {
       caption: message,
       parse_mode: 'Markdown',
       reply_markup: {
@@ -99,9 +109,9 @@ bot.action(/^product_(\d+)_(\d+)$/, async (ctx) => {
     const product = await findProduct(productID, subcategoryId);
 
     if (product) {
-      ctx.reply(`Name: ${product.name}\n\nDescription: ${product.desc}\n\nLink: ${product.link}`);
+      ctx.reply(`Название || Nomi : \n ${product.name}\n\n Описание || Tavsif : \n ${product.desc}\n\n В наличии || Sotuvda mavjud :\n ${product.quantity == "True" ? "✅" : "❌"}\n\n Ссылка || Link:\n ${product.link}`);
     } else {
-      ctx.reply("Product not found.");
+      ctx.reply("Продукт не найден || Mahsulot mavjud emas.");
     }
   } catch (error) {
     console.error("Error handling product action:", error);

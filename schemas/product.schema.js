@@ -20,6 +20,10 @@ const ProductSchema = new mongoose.Schema({
     subcategory_id:{
         type: Number,
         required: true
+    } ,
+    quantity: {
+        type: String,
+        required: true
     }
 })
 

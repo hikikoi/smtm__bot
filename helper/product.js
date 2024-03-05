@@ -26,7 +26,7 @@ async function findProduct(product_id, subcategory_id){
     try{
         const product = await Product.findOne({id: product_id, subcategory_id: subcategory_id});
 
-        return product ? { name: product.name, desc: product.desc, link: product.link } : null;
+        return product ? { name: product.name, desc: product.desc, quantity: product.quantity, link: product.link } : null;
         console.log(product.link);
     } catch(error){
         console.error("Error fetching product:", error);

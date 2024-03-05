@@ -9,10 +9,8 @@ async function generateSubcategoriesMenu(categoryID) {
 
         subcategories.forEach((subcategory, index) => {
             group.push({ text: subcategory.name, callback_data: `subcategory_${index + 1}` });
-            if ((index + 1) % 2 === 0 || index === subcategories.length - 1) {
-                subcategoryOptions.push(group);
+            subcategoryOptions.push(group);
                 group = [];
-            }
         });
 
         return subcategoryOptions;

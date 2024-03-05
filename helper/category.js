@@ -9,10 +9,8 @@ async function generateCategoriesMenu() {
 
         categories.forEach((category, index) => {
             group.push({ text: category.name, callback_data: `category_${index + 1}` });
-            if ((index + 1) % 2 === 0 || index === categories.length - 1) {
-                categoryOptions.push(group);
+            categoryOptions.push(group);
                 group = [];
-            }
         });
 
         return categoryOptions;
